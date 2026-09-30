@@ -1,0 +1,2045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>点读绘本 · 英语分级阅读小游戏</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      background: linear-gradient(145deg, #fde9d0 0%, #fce2c1 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Comic Sans MS', 'Chalkboard SE', '幼圆', 'Yuanti SC', cursive, sans-serif;
+      padding: 12px;
+    }
+
+    .game-wrapper {
+      max-width: 1000px;
+      width: 100%;
+      background-color: #fff9f0;
+      border-radius: 60px 60px 40px 40px;
+      box-shadow: 0 20px 30px rgba(0, 0, 0, 0.15), 0 8px 0 #d9b382, 0 12px 25px rgba(0, 0, 0, 0.2);
+      padding: 30px 25px 35px;
+      border: 6px solid #ffeacb;
+    }
+
+    .mode-tabs {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .mode-tab {
+      background: #ffefdb;
+      border: 3px solid #ffe0b5;
+      border-radius: 40px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #a1704a;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #d9b382;
+      transition: all 0.08s linear;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+
+    .mode-tab:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 #d9b382;
+    }
+
+    .mode-tab.active {
+      background: #ffdbb5;
+      color: #6b3f1f;
+      border-color: #ffc98a;
+      box-shadow: 0 5px 0 #b58b62;
+    }
+
+    .level-badge {
+      font-size: 0.7rem;
+      background: #7ed47e;
+      color: #fff;
+      padding: 2px 7px;
+      border-radius: 20px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .level-badge.hard {
+      background: #f39c5a;
+    }
+
+    .level-badge.fun {
+      background: #b18bd8;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding: 0 10px;
+    }
+
+    .title {
+      font-size: 2rem;
+      font-weight: 600;
+      color: #7a4d2e;
+      text-shadow: 4px 4px 0 #f0d5b0;
+      letter-spacing: 2px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title span {
+      font-size: 2.4rem;
+    }
+
+    .speaker-btn {
+      background-color: #ffdbb5;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 0 #b58b62, 0 8px 12px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: all 0.05s linear;
+      color: #7a4d2e;
+      border: 2px solid #ffe6cc;
+    }
+
+    .speaker-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #b58b62, 0 5px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .scene {
+      position: relative;
+      background: #cbe6f0;
+      background-image: radial-gradient(circle at 20% 30%, #e8f5ff 5%, transparent 15%),
+                        radial-gradient(circle at 90% 70%, #e8f5ff 8%, transparent 20%),
+                        linear-gradient(180deg, #b3d9f0 0%, #d4ecfa 40%, #b7dba8 60%, #9cc98a 100%);
+      border-radius: 70px 70px 50px 50px;
+      padding: 20px 15px 15px;
+      box-shadow: inset 0 -8px 0 #6f9e5c, inset 0 8px 0 #ffeacb, 0 12px 18px rgba(0, 0, 0, 0.15);
+      border: 4px solid #ffffffb0;
+      min-height: 520px;
+      width: 100%;
+      margin-bottom: 10px;
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="%23ffb86b" opacity="0.6" stroke="%23ffffff" stroke-width="3"/><circle cx="16" cy="16" r="6" fill="%23ffffff" opacity="0.9"/></svg>') 16 16, auto;
+    }
+
+    .object-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: auto auto;
+      gap: 10px 5px;
+      align-items: end;
+      justify-items: center;
+      padding: 10px 0 0;
+    }
+
+    .clickable-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.2s;
+      filter: drop-shadow(0 8px 8px rgba(0, 0, 0, 0.15));
+      padding: 5px 5px 0;
+      border-radius: 40px;
+      position: relative;
+      min-width: 0;
+    }
+
+    .clickable-item:hover {
+      transform: scale(1.05);
+    }
+
+    .clickable-item:active {
+      transform: scale(0.96);
+    }
+
+    .clickable-item.tapped {
+      animation: bounce 0.3s ease;
+    }
+
+    @keyframes bounce {
+      0% { transform: scale(0.96); }
+      40% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .object-emoji {
+      font-size: 6.2rem;
+      line-height: 1;
+      filter: drop-shadow(0 6px 3px rgba(0, 0, 0, 0.15));
+      transition: filter 0.1s;
+      pointer-events: none;
+    }
+
+    .item-dog .object-emoji { font-size: 6.8rem; }
+    .item-cat .object-emoji { font-size: 6.8rem; }
+    .item-sun .object-emoji { font-size: 6rem; }
+    .item-tree .object-emoji { font-size: 7rem; }
+    .item-flower .object-emoji { font-size: 5.5rem; }
+    .item-bird .object-emoji { font-size: 5.8rem; }
+    .item-house .object-emoji { font-size: 6.5rem; }
+    .item-car .object-emoji { font-size: 6rem; }
+
+    .word-bubble {
+      background: #fffbe6;
+      border-radius: 40px;
+      padding: 6px 16px;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #4a2e1b;
+      box-shadow: 0 5px 0 #d9b382, 0 6px 12px rgba(0, 0, 0, 0.1);
+      border: 2px solid #ffeacb;
+      margin-top: 5px;
+      letter-spacing: 1px;
+      transition: all 0.1s;
+      text-transform: capitalize;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .item-bird .word-bubble, .item-flower .word-bubble {
+      font-size: 1.3rem;
+      padding: 5px 12px;
+    }
+
+    .cloud {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 80px;
+      filter: blur(2px);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .cloud1 { width: 120px; height: 50px; top: 40px; left: 20px; }
+    .cloud1::before, .cloud1::after {
+      content: '';
+      position: absolute;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+    }
+    .cloud1::before { width: 70px; height: 70px; top: -30px; left: 10px; }
+    .cloud1::after { width: 90px; height: 90px; top: -45px; left: 40px; }
+
+    .cloud2 { width: 150px; height: 60px; top: 20px; right: 30px; }
+    .cloud2::before, .cloud2::after {
+      content: '';
+      position: absolute;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+    }
+    .cloud2::before { width: 80px; height: 80px; top: -35px; left: 15px; }
+    .cloud2::after { width: 100px; height: 100px; top: -50px; left: 50px; }
+
+    .grass {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 30px;
+      background: #7eaf5e;
+      border-radius: 0 0 80px 80px;
+      box-shadow: inset 0 8px 0 #5f8a45;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .deco-leaf {
+      position: absolute;
+      font-size: 2.5rem;
+      opacity: 0.6;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .hint {
+      text-align: center;
+      font-size: 1.2rem;
+      color: #aa7e5a;
+      margin-top: 15px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      background: #fff5e6;
+      display: inline-block;
+      padding: 8px 30px;
+      border-radius: 40px;
+      box-shadow: inset 0 -3px 0 #e4c9a6;
+      margin-left: auto;
+      margin-right: auto;
+      width: fit-content;
+    }
+
+    .game-area {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 520px;
+      padding: 20px 10px 10px;
+      position: relative;
+    }
+
+    .game-area.active {
+      display: flex;
+    }
+
+    .scene.reading-mode .object-grid { display: grid; }
+    .scene.game-mode .object-grid { display: none; }
+    .scene.game-mode .game-area { display: flex; }
+
+    .game-status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 700px;
+      margin-bottom: 20px;
+      padding: 0 10px;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .score-box, .question-box {
+      background: #fffbe6;
+      border-radius: 40px;
+      padding: 10px 28px;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #6b3f1f;
+      box-shadow: 0 5px 0 #d9b382, 0 6px 12px rgba(0, 0, 0, 0.1);
+      border: 2px solid #ffeacb;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .score-box span {
+      color: #e08b3c;
+      font-size: 1.8rem;
+    }
+
+    .play-word-btn {
+      background: #ffb86b;
+      border: none;
+      border-radius: 60px;
+      padding: 18px 45px;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+      text-shadow: 2px 2px 0 #c47e3a;
+      box-shadow: 0 8px 0 #b56f2e, 0 12px 18px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      transition: all 0.06s linear;
+      font-family: inherit;
+      margin-bottom: 25px;
+      letter-spacing: 2px;
+    }
+
+    .play-word-btn:active {
+      transform: translateY(5px);
+      box-shadow: 0 3px 0 #b56f2e, 0 8px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .play-word-btn .icon {
+      font-size: 2.2rem;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px 12px;
+      width: 100%;
+      max-width: 780px;
+      margin-top: 10px;
+      padding: 0 10px;
+    }
+
+    .option-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #fffdf5;
+      border-radius: 50px;
+      padding: 18px 6px 12px;
+      box-shadow: 0 8px 0 #c9a77b, 0 10px 18px rgba(0, 0, 0, 0.12);
+      border: 4px solid #ffeacb;
+      cursor: pointer;
+      transition: all 0.08s linear;
+      position: relative;
+    }
+
+    .option-item:active {
+      transform: translateY(4px);
+      box-shadow: 0 4px 0 #c9a77b, 0 6px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .option-item .option-emoji {
+      font-size: 3.6rem;
+      line-height: 1;
+      filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.12));
+    }
+
+    .option-item.correct {
+      background: #d4f7d4;
+      border-color: #7ed47e;
+      box-shadow: 0 8px 0 #5eb85e, 0 10px 18px rgba(0, 0, 0, 0.12);
+      animation: correctPop 0.4s ease;
+    }
+
+    .option-item.wrong {
+      background: #ffd6d6;
+      border-color: #ff9e9e;
+      box-shadow: 0 8px 0 #d67b7b, 0 10px 18px rgba(0, 0, 0, 0.12);
+      animation: wrongShake 0.4s ease;
+    }
+
+    .option-item.disabled {
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    @keyframes correctPop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes wrongShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+    }
+
+    .feedback {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-top: 20px;
+      min-height: 3rem;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    .feedback.good {
+      color: #3d9e3d;
+      text-shadow: 2px 2px 0 #c1e8c1;
+    }
+
+    .feedback.bad {
+      color: #d66b6b;
+      text-shadow: 2px 2px 0 #f8d0d0;
+    }
+
+    .score-pop {
+      position: absolute;
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: #f5a623;
+      text-shadow: 2px 2px 0 #fff;
+      pointer-events: none;
+      animation: floatUp 0.8s ease-out forwards;
+      z-index: 100;
+    }
+
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-90px) scale(1.5); }
+    }
+
+    .confetti {
+      position: absolute;
+      font-size: 2rem;
+      pointer-events: none;
+      animation: confettiFall 1.2s ease-out forwards;
+      z-index: 200;
+    }
+
+    @keyframes confettiFall {
+      0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+      100% { opacity: 0; transform: translateY(180px) rotate(360deg); }
+    }
+
+    .spell-area {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 520px;
+      padding: 20px 10px 10px;
+      position: relative;
+    }
+
+    .spell-area.active {
+      display: flex;
+    }
+
+    .scene.spell-mode .object-grid { display: none; }
+    .scene.spell-mode .game-area { display: none; }
+    .scene.spell-mode .spell-area { display: flex; }
+
+    .spell-hint-image {
+      font-size: 5.5rem;
+      line-height: 1;
+      margin-bottom: 10px;
+      filter: drop-shadow(0 6px 3px rgba(0, 0, 0, 0.15));
+      animation: gentleFloat 2s ease-in-out infinite;
+    }
+
+    @keyframes gentleFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .spell-slots {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 30px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .spell-slot {
+      width: 70px;
+      height: 80px;
+      background: #fffdf5;
+      border: 4px dashed #d9b382;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: #6b3f1f;
+      text-transform: lowercase;
+      box-shadow: inset 0 -4px 0 #f0e0cc;
+      transition: all 0.15s ease;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+    }
+
+    .spell-slot.filled {
+      border-style: solid;
+      border-color: #ffb86b;
+      background: #fff4e0;
+      box-shadow: 0 6px 0 #d9b382, 0 8px 12px rgba(0, 0, 0, 0.1);
+      animation: slotPop 0.2s ease;
+    }
+
+    @keyframes slotPop {
+      0% { transform: scale(0.8); }
+      100% { transform: scale(1); }
+    }
+
+    .letter-pool {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 650px;
+      margin-top: 10px;
+    }
+
+    .letter-btn {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(180deg, #ffe6b8 0%, #ffd699 100%);
+      border: 3px solid #ffc98a;
+      border-radius: 20px;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #6b3f1f;
+      cursor: pointer;
+      box-shadow: 0 6px 0 #c9a77b, 0 8px 12px rgba(0, 0, 0, 0.1);
+      transition: all 0.06s linear;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      text-transform: lowercase;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .letter-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #c9a77b, 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .letter-btn.used {
+      opacity: 0.25;
+      pointer-events: none;
+      transform: scale(0.9);
+    }
+
+    .letter-btn.wiggle {
+      animation: wiggle 0.3s ease;
+    }
+
+    @keyframes wiggle {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px) rotate(-3deg); }
+      75% { transform: translateX(5px) rotate(3deg); }
+    }
+
+    .spell-controls {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .spell-control-btn {
+      background: #ffb86b;
+      border: none;
+      border-radius: 50px;
+      padding: 12px 28px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 1px 1px 0 #c47e3a;
+      box-shadow: 0 6px 0 #b56f2e;
+      cursor: pointer;
+      transition: all 0.06s linear;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .spell-control-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #b56f2e;
+    }
+
+    .spell-control-btn.secondary {
+      background: #a8d8ea;
+      box-shadow: 0 6px 0 #6fa8c0;
+      text-shadow: 1px 1px 0 #5a8ba0;
+    }
+
+    .spell-control-btn.secondary:active {
+      box-shadow: 0 2px 0 #6fa8c0;
+    }
+
+    .spell-success-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 150;
+    }
+
+    .spell-success-emoji {
+      font-size: 8rem;
+      animation: successBurst 0.8s ease-out forwards;
+    }
+
+    @keyframes successBurst {
+      0% { transform: scale(0.3); opacity: 0; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+
+    /* ★★★ 动画剧场 ★★★ */
+    .theater-area {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 520px;
+      padding: 20px 10px 10px;
+      position: relative;
+      width: 100%;
+    }
+
+    .theater-area.active {
+      display: flex;
+    }
+
+    .scene.theater-mode .object-grid { display: none; }
+    .scene.theater-mode .game-area { display: none; }
+    .scene.theater-mode .spell-area { display: none; }
+    .scene.theater-mode .theater-area { display: flex; }
+
+    .theater-stage {
+      position: relative;
+      width: 100%;
+      max-width: 820px;
+      height: 380px;
+      border-radius: 50px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #b3d9f0 0%, #d4ecfa 45%, #b7dba8 65%, #9cc98a 100%);
+      box-shadow: inset 0 -10px 0 #6f9e5c, inset 0 10px 0 #ffeacb, 0 15px 25px rgba(0, 0, 0, 0.2);
+      border: 5px solid #ffffffc0;
+      margin-bottom: 15px;
+    }
+
+    .stage-cloud {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 80px;
+      pointer-events: none;
+    }
+
+    .stage-cloud::before, .stage-cloud::after {
+      content: '';
+      position: absolute;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 50%;
+    }
+
+    .sc1 { width: 100px; height: 40px; top: 30px; left: 40px; animation: cloudDrift 20s linear infinite; }
+    .sc1::before { width: 60px; height: 60px; top: -25px; left: 10px; }
+    .sc1::after { width: 75px; height: 75px; top: -38px; left: 35px; }
+
+    .sc2 { width: 130px; height: 50px; top: 60px; right: 60px; animation: cloudDrift 25s linear infinite reverse; }
+    .sc2::before { width: 70px; height: 70px; top: -32px; left: 15px; }
+    .sc2::after { width: 90px; height: 90px; top: -45px; left: 45px; }
+
+    @keyframes cloudDrift {
+      0% { transform: translateX(0); }
+      50% { transform: translateX(30px); }
+      100% { transform: translateX(0); }
+    }
+
+    .stage-sun {
+      position: absolute;
+      top: 30px;
+      right: 40px;
+      font-size: 4rem;
+      animation: sunGlow 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes sunGlow {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 8px #ffdb70); }
+      50% { transform: scale(1.1); filter: drop-shadow(0 0 20px #ffb347); }
+    }
+
+    .stage-grass {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 70px;
+      background: linear-gradient(180deg, #8fc46a 0%, #6f9e5c 100%);
+      border-radius: 0 0 45px 45px;
+      z-index: 1;
+    }
+
+    .stage-tree {
+      position: absolute;
+      bottom: 50px;
+      font-size: 7.5rem;
+      z-index: 2;
+      pointer-events: none;
+      filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.2));
+    }
+
+    .stage-tree.left { left: -10px; }
+    .stage-tree.right { right: -10px; }
+
+    .stage-house {
+      position: absolute;
+      bottom: 55px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 4rem;
+      z-index: 2;
+      pointer-events: none;
+      opacity: 0.9;
+    }
+
+    /* ★★★ 花：移到左边大树旁边 ★★★ */
+    .stage-flower-bg {
+      position: absolute;
+      bottom: 50px;
+      left: 12%;                 /* 左侧约12%处，紧挨左边大树 */
+      font-size: 3.5rem;         /* 稍微放大 */
+      z-index: 3;
+      pointer-events: none;
+      filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.2));
+      animation: flowerSway 3s ease-in-out infinite;
+      transform-origin: bottom center;
+    }
+
+    @keyframes flowerSway {
+      0%, 100% { transform: rotate(-4deg); }
+      50% { transform: rotate(4deg); }
+    }
+
+    .stage-actor {
+      position: absolute;
+      bottom: 55px;
+      font-size: 4rem;
+      z-index: 10;
+      transition: all 0.5s ease;
+      filter: drop-shadow(0 6px 4px rgba(0, 0, 0, 0.25));
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .stage-actor.actor-speaking {
+      opacity: 1 !important;
+      filter: drop-shadow(0 0 15px #ffd700) drop-shadow(0 6px 4px rgba(0, 0, 0, 0.25));
+      transform: scale(1.15) !important;
+      z-index: 20;
+    }
+
+    .stage-actor.actor-dimmed {
+      opacity: 0.35 !important;
+      transform: scale(0.9) !important;
+      filter: grayscale(0.4) drop-shadow(0 4px 3px rgba(0, 0, 0, 0.15));
+      z-index: 5;
+    }
+
+    .actor-enter {
+      animation: actorEnter 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes actorEnter {
+      0% { opacity: 0; transform: translateY(30px) scale(0.5); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .actor-hop {
+      animation: actorHop 0.5s ease infinite;
+    }
+
+    @keyframes actorHop {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    .actor-sway {
+      animation: actorSway 1.5s ease-in-out infinite;
+    }
+
+    @keyframes actorSway {
+      0%, 100% { transform: rotate(-5deg); }
+      50% { transform: rotate(5deg); }
+    }
+
+    .subtitle-box {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 251, 230, 0.97);
+      border: 4px solid #ffeacb;
+      border-radius: 30px;
+      padding: 10px 28px;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #6b3f1f;
+      box-shadow: 0 6px 0 #d9b382, 0 8px 16px rgba(0, 0, 0, 0.15);
+      z-index: 60;
+      min-width: 180px;
+      max-width: 75%;
+      text-align: center;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+
+    .subtitle-box::after {
+      content: '';
+      position: absolute;
+      bottom: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-top: 14px solid #ffeacb;
+    }
+
+    .subtitle-box .en-word {
+      color: #e08b3c;
+      font-size: 1.4rem;
+      font-weight: 900;
+      letter-spacing: 1px;
+      display: block;
+      line-height: 1.3;
+    }
+
+    .subtitle-box .zh-word {
+      display: block;
+      font-size: 0.95rem;
+      color: #a1704a;
+      margin-top: 3px;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .subtitle-box.hidden {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-10px);
+    }
+
+    .theater-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 5px;
+    }
+
+    .theater-btn {
+      background: #ffb86b;
+      border: none;
+      border-radius: 50px;
+      padding: 12px 28px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 1px 1px 0 #c47e3a;
+      box-shadow: 0 6px 0 #b56f2e;
+      cursor: pointer;
+      transition: all 0.06s linear;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .theater-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #b56f2e;
+    }
+
+    .theater-btn:disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .theater-btn.secondary {
+      background: #a8d8ea;
+      box-shadow: 0 6px 0 #6fa8c0;
+      text-shadow: 1px 1px 0 #5a8ba0;
+    }
+
+    .theater-btn.secondary:active {
+      box-shadow: 0 2px 0 #6fa8c0;
+    }
+
+    .theater-btn.next-btn {
+      background: #7ed47e;
+      box-shadow: 0 6px 0 #4fa84f;
+      text-shadow: 1px 1px 0 #3d8b3d;
+      font-size: 1.25rem;
+      padding: 14px 36px;
+      animation: nextPulse 1.5s ease-in-out infinite;
+    }
+
+    .theater-btn.next-btn:active {
+      box-shadow: 0 2px 0 #4fa84f;
+    }
+
+    @keyframes nextPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .scene-progress {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    .progress-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #e0cbb0;
+      transition: all 0.3s ease;
+    }
+
+    .progress-dot.active {
+      background: #ffb86b;
+      transform: scale(1.3);
+      box-shadow: 0 0 8px #ffb86b;
+    }
+
+    .progress-dot.done {
+      background: #7ed47e;
+    }
+
+    .theater-tip {
+      font-size: 1rem;
+      color: #a1704a;
+      margin-top: 8px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .game-over {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 245, 230, 0.95);
+      border-radius: 70px 70px 50px 50px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .game-over.active {
+      display: flex;
+    }
+
+    .game-over h2 {
+      font-size: 2.6rem;
+      color: #7a4d2e;
+      margin-bottom: 15px;
+      text-shadow: 3px 3px 0 #f0d5b0;
+    }
+
+    .game-over p {
+      font-size: 1.6rem;
+      color: #a1704a;
+      margin-bottom: 25px;
+      font-weight: 700;
+    }
+
+    .game-over .final-score {
+      font-size: 3.5rem;
+      color: #e08b3c;
+      font-weight: 900;
+      display: block;
+      margin: 10px 0 25px;
+      text-shadow: 3px 3px 0 #ffeacb;
+    }
+
+    .restart-btn {
+      background: #ffb86b;
+      border: none;
+      border-radius: 60px;
+      padding: 16px 48px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+      text-shadow: 2px 2px 0 #c47e3a;
+      box-shadow: 0 8px 0 #b56f2e;
+      cursor: pointer;
+      transition: all 0.06s linear;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .restart-btn:active {
+      transform: translateY(5px);
+      box-shadow: 0 3px 0 #b56f2e;
+    }
+
+    .stars-row {
+      font-size: 2.4rem;
+      letter-spacing: 8px;
+      margin-bottom: 15px;
+      filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.1));
+    }
+
+    @media (max-width: 750px) {
+      .game-wrapper { padding: 20px 15px 25px; }
+      .title { font-size: 1.8rem; }
+      .title span { font-size: 2rem; }
+      .speaker-btn { width: 55px; height: 55px; font-size: 2rem; }
+      .object-emoji { font-size: 4rem !important; }
+      .item-dog .object-emoji, .item-cat .object-emoji { font-size: 4.4rem !important; }
+      .item-tree .object-emoji { font-size: 4.8rem !important; }
+      .word-bubble { font-size: 1.1rem !important; padding: 4px 10px; }
+      .scene { min-height: 420px; }
+      .game-area, .spell-area { min-height: 420px; }
+      .play-word-btn { padding: 14px 30px; font-size: 1.4rem; }
+      .options-grid { gap: 10px 8px; }
+      .option-item .option-emoji { font-size: 2.8rem; }
+      .option-item { padding: 12px 4px 8px; border-radius: 40px; }
+      .mode-tab { padding: 8px 12px; font-size: 0.85rem; }
+      .score-box, .question-box { padding: 8px 18px; font-size: 1.1rem; }
+      .spell-slot { width: 55px; height: 65px; font-size: 2.2rem; }
+      .letter-btn { width: 55px; height: 55px; font-size: 1.8rem; }
+      .spell-hint-image { font-size: 4rem; }
+      .spell-control-btn { padding: 10px 20px; font-size: 1rem; }
+      .theater-stage { height: 300px; }
+      .stage-actor { font-size: 3.2rem; bottom: 45px; }
+      .stage-tree { font-size: 5.5rem; bottom: 40px; }
+      .stage-house { font-size: 3rem; bottom: 45px; }
+      .stage-flower-bg { font-size: 2.8rem; bottom: 40px; left: 10%; }
+      .subtitle-box { font-size: 1.15rem; padding: 8px 18px; top: 15px; max-width: 85%; }
+      .subtitle-box .en-word { font-size: 1.15rem; }
+      .subtitle-box .zh-word { font-size: 0.85rem; }
+      .stage-sun { font-size: 3rem; top: 20px; right: 25px; }
+      .theater-btn { padding: 10px 20px; font-size: 1rem; }
+      .theater-btn.next-btn { padding: 12px 28px; font-size: 1.1rem; }
+    }
+
+    @media (max-width: 500px) {
+      .object-grid { gap: 2px; }
+      .object-emoji { font-size: 3rem !important; }
+      .item-dog .object-emoji, .item-cat .object-emoji { font-size: 3.4rem !important; }
+      .word-bubble { font-size: 0.9rem !important; padding: 3px 8px; }
+      .hint { font-size: 0.9rem; padding: 6px 16px; }
+      .play-word-btn { font-size: 1.2rem; padding: 12px 22px; }
+      .option-item .option-emoji { font-size: 2.2rem; }
+      .mode-tab { font-size: 0.75rem; padding: 6px 8px; }
+      .game-over h2 { font-size: 2rem; }
+      .final-score { font-size: 2.6rem; }
+      .spell-slot { width: 45px; height: 55px; font-size: 1.8rem; gap: 6px; }
+      .letter-btn { width: 48px; height: 48px; font-size: 1.5rem; }
+      .spell-slots { gap: 6px; }
+      .letter-pool { gap: 6px; }
+      .theater-stage { height: 260px; }
+      .stage-actor { font-size: 2.6rem; bottom: 40px; }
+      .stage-tree { font-size: 4.2rem; bottom: 35px; }
+      .stage-house { font-size: 2.5rem; bottom: 40px; }
+      .stage-flower-bg { font-size: 2.2rem; bottom: 35px; left: 8%; }
+      .subtitle-box { font-size: 0.95rem; padding: 6px 12px; top: 10px; max-width: 90%; }
+      .subtitle-box .en-word { font-size: 0.95rem; }
+      .subtitle-box .zh-word { font-size: 0.75rem; }
+      .theater-btn { padding: 8px 16px; font-size: 0.9rem; }
+      .theater-btn.next-btn { padding: 10px 22px; font-size: 1rem; }
+      .stage-sun { font-size: 2.5rem; top: 15px; right: 15px; }
+    }
+  </style>
+</head>
+<body>
+<div class="game-wrapper">
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tabReading" data-mode="reading">
+      📖 点读绘本
+    </button>
+    <button class="mode-tab" id="tabGame" data-mode="game">
+      🎮 听音找图 <span class="level-badge">简单</span>
+    </button>
+    <button class="mode-tab" id="tabSpell" data-mode="spell">
+      ✏️ 拼单词 <span class="level-badge hard">较难</span>
+    </button>
+    <button class="mode-tab" id="tabTheater" data-mode="theater">
+      🎬 动画剧场 <span class="level-badge fun">观看</span>
+    </button>
+  </div>
+
+  <div class="header">
+    <div class="title">
+      <span>📖</span> 点点读
+    </div>
+    <button class="speaker-btn" id="stopSpeakBtn" title="停止发音">🔊</button>
+  </div>
+
+  <div class="scene reading-mode" id="scene">
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+    <div class="grass"></div>
+    <div class="deco-leaf" style="bottom: 18px; left: 40px;">🍃</div>
+    <div class="deco-leaf" style="bottom: 15px; right: 60px;">🌿</div>
+
+    <div class="object-grid" id="readingGrid">
+      <div class="clickable-item item-dog" data-word="dog">
+        <div class="object-emoji">🐶</div>
+        <div class="word-bubble">dog</div>
+      </div>
+      <div class="clickable-item item-cat" data-word="cat">
+        <div class="object-emoji">🐱</div>
+        <div class="word-bubble">cat</div>
+      </div>
+      <div class="clickable-item item-sun" data-word="sun">
+        <div class="object-emoji">☀️</div>
+        <div class="word-bubble">sun</div>
+      </div>
+      <div class="clickable-item item-tree" data-word="tree">
+        <div class="object-emoji">🌳</div>
+        <div class="word-bubble">tree</div>
+      </div>
+      <div class="clickable-item item-flower" data-word="flower">
+        <div class="object-emoji">🌻</div>
+        <div class="word-bubble">flower</div>
+      </div>
+      <div class="clickable-item item-bird" data-word="bird">
+        <div class="object-emoji">🐦</div>
+        <div class="word-bubble">bird</div>
+      </div>
+      <div class="clickable-item item-house" data-word="house">
+        <div class="object-emoji">🏠</div>
+        <div class="word-bubble">house</div>
+      </div>
+      <div class="clickable-item item-car" data-word="car">
+        <div class="object-emoji">🚗</div>
+        <div class="word-bubble">car</div>
+      </div>
+    </div>
+
+    <div class="game-area" id="gameArea">
+      <div class="game-status">
+        <div class="score-box">⭐ 得分 <span id="scoreDisplay">0</span></div>
+        <div class="question-box">🎯 第 <span id="questionNum">1</span>/<span id="totalQuestions">8</span> 题</div>
+      </div>
+      <button class="play-word-btn" id="playWordBtn">
+        <span class="icon">🔊</span> 点我听单词
+      </button>
+      <div class="options-grid" id="optionsGrid"></div>
+      <div class="feedback" id="feedbackText"></div>
+    </div>
+
+    <div class="spell-area" id="spellArea">
+      <div class="game-status">
+        <div class="score-box">⭐ 得分 <span id="spellScoreDisplay">0</span></div>
+        <div class="question-box">🎯 第 <span id="spellQuestionNum">1</span>/<span id="spellTotalQuestions">6</span> 题</div>
+      </div>
+      <div class="spell-hint-image" id="spellHintImage">🐶</div>
+      <div class="spell-controls">
+        <button class="spell-control-btn" id="spellListenBtn">🔊 再听一遍</button>
+        <button class="spell-control-btn secondary" id="spellClearBtn">↩️ 清空重来</button>
+      </div>
+      <div class="spell-slots" id="spellSlots"></div>
+      <div class="letter-pool" id="letterPool"></div>
+      <div class="feedback" id="spellFeedback"></div>
+    </div>
+
+    <div class="theater-area" id="theaterArea">
+      <div class="theater-stage" id="theaterStage">
+        <div class="stage-cloud sc1"></div>
+        <div class="stage-cloud sc2"></div>
+        <div class="stage-sun">☀️</div>
+        <div class="stage-grass"></div>
+
+        <div class="stage-tree left">🌳</div>
+        <div class="stage-tree right">🌳</div>
+
+        <div class="stage-house">🏠</div>
+
+        <!-- ★ 花：移到了左边大树旁边 -->
+        <div class="stage-flower-bg">🌻</div>
+
+        <div class="stage-actor" id="actorDog" style="left: 10%;">🐶</div>
+        <div class="stage-actor" id="actorCat" style="left: 35%;">🐱</div>
+        <div class="stage-actor" id="actorBird" style="left: 60%;">🐦</div>
+        <div class="stage-actor" id="actorFlower" style="left: 82%; font-size: 3rem;">🌻</div>
+
+        <div class="subtitle-box hidden" id="subtitleBox">
+          <span class="en-word" id="subtitleEn">Hello!</span>
+          <span class="zh-word" id="subtitleZh"></span>
+        </div>
+      </div>
+
+      <div class="theater-controls">
+        <button class="theater-btn secondary" id="restartStoryBtn">⏮️ 从头开始</button>
+        <button class="theater-btn" id="replaySceneBtn">🔁 重播本幕</button>
+        <button class="theater-btn next-btn" id="nextSceneBtn">▶️ 播放 / 下一幕</button>
+      </div>
+
+      <div class="theater-tip" id="theaterTip">
+        👆 点一下按钮，看一幕动画，听完再点下一幕
+      </div>
+
+      <div class="scene-progress" id="sceneProgress"></div>
+    </div>
+
+    <div class="game-over" id="gameOver">
+      <div class="stars-row" id="starsRow">⭐⭐⭐</div>
+      <h2 id="gameOverTitle">太棒啦！</h2>
+      <p id="gameOverSubtitle">你完成了所有题目</p>
+      <span class="final-score" id="finalScore">0 分</span>
+      <button class="restart-btn" id="restartBtn">🔄 再玩一次</button>
+    </div>
+
+    <div class="hint" id="mainHint" style="margin-top: 20px; margin-bottom: 10px; background: #ffeacb;">
+      👆 点一点图片，听听英语单词！
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    let voices = [];
+    const speechSynth = window.speechSynthesis;
+
+    function loadVoices() {
+      if (!speechSynth) return;
+      voices = speechSynth.getVoices();
+    }
+
+    if (speechSynth) {
+      loadVoices();
+      speechSynth.onvoiceschanged = loadVoices;
+    }
+
+    function getAmericanVoice() {
+      if (!voices.length) return null;
+      const englishVoices = voices.filter(v => v.lang.toLowerCase().startsWith('en'));
+      if (englishVoices.length === 0) return null;
+      const usVoices = englishVoices.filter(v => {
+        const l = v.lang.toLowerCase();
+        return l === 'en-us' || l === 'en_us' || l.startsWith('en-us');
+      });
+      const preferredNames = [
+        'Samantha', 'Google US English', 'Ava', 'Allison', 'Susan',
+        'Catherine', 'Nicky', 'Zira', 'Aria', 'Jenny', 'Michelle', 'Eva'
+      ];
+      for (let name of preferredNames) {
+        const found = usVoices.find(v => v.name.toLowerCase().includes(name.toLowerCase()));
+        if (found) return found;
+      }
+      if (usVoices.length > 0) return usVoices[0];
+      const fallbackNames = ['Samantha', 'Karen', 'Moira', 'Tessa', 'Victoria', 'Google UK English Female'];
+      for (let name of fallbackNames) {
+        const found = englishVoices.find(v => v.name.toLowerCase().includes(name.toLowerCase()));
+        if (found) return found;
+      }
+      return englishVoices[0];
+    }
+
+    function speakWord(word, rate = 0.7, pitch = 1.1, onEnd = null) {
+      if (!speechSynth) {
+        if (onEnd) setTimeout(onEnd, 500);
+        return;
+      }
+      const utterance = new SpeechSynthesisUtterance(word);
+      utterance.rate = rate;
+      utterance.pitch = pitch;
+      utterance.volume = 1.0;
+      utterance.lang = 'en-US';
+      const voice = getAmericanVoice();
+      if (voice) {
+        utterance.voice = voice;
+        utterance.lang = voice.lang;
+      }
+      if (onEnd) {
+        utterance.onend = onEnd;
+        utterance.onerror = onEnd;
+      }
+      speechSynth.speak(utterance);
+    }
+
+    function stopSpeaking() {
+      if (speechSynth) speechSynth.cancel();
+    }
+
+    document.getElementById('stopSpeakBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      stopSpeaking();
+    });
+
+    const tabReading = document.getElementById('tabReading');
+    const tabGame = document.getElementById('tabGame');
+    const tabSpell = document.getElementById('tabSpell');
+    const tabTheater = document.getElementById('tabTheater');
+    const scene = document.getElementById('scene');
+    const mainHint = document.getElementById('mainHint');
+    const gameArea = document.getElementById('gameArea');
+    const spellArea = document.getElementById('spellArea');
+    const theaterArea = document.getElementById('theaterArea');
+    const gameOver = document.getElementById('gameOver');
+
+    let currentMode = 'reading';
+
+    function switchMode(mode) {
+      currentMode = mode;
+      stopSpeaking();
+
+      scene.classList.remove('reading-mode', 'game-mode', 'spell-mode', 'theater-mode');
+      tabReading.classList.remove('active');
+      tabGame.classList.remove('active');
+      tabSpell.classList.remove('active');
+      tabTheater.classList.remove('active');
+      gameArea.classList.remove('active');
+      spellArea.classList.remove('active');
+      theaterArea.classList.remove('active');
+      gameOver.classList.remove('active');
+
+      if (mode === 'reading') {
+        tabReading.classList.add('active');
+        scene.classList.add('reading-mode');
+        mainHint.style.display = 'inline-block';
+        mainHint.textContent = '👆 点一点图片，听听英语单词！';
+      } else if (mode === 'game') {
+        tabGame.classList.add('active');
+        scene.classList.add('game-mode');
+        gameArea.classList.add('active');
+        mainHint.style.display = 'none';
+        startNewGame();
+      } else if (mode === 'spell') {
+        tabSpell.classList.add('active');
+        scene.classList.add('spell-mode');
+        spellArea.classList.add('active');
+        mainHint.style.display = 'none';
+        startNewSpellGame();
+      } else if (mode === 'theater') {
+        tabTheater.classList.add('active');
+        scene.classList.add('theater-mode');
+        theaterArea.classList.add('active');
+        mainHint.style.display = 'none';
+        initTheater();
+      }
+    }
+
+    tabReading.addEventListener('click', () => switchMode('reading'));
+    tabGame.addEventListener('click', () => switchMode('game'));
+    tabSpell.addEventListener('click', () => switchMode('spell'));
+    tabTheater.addEventListener('click', () => switchMode('theater'));
+
+    document.querySelectorAll('#readingGrid .clickable-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const word = item.dataset.word;
+        if (!word) return;
+        stopSpeaking();
+        speakWord(word);
+        item.classList.add('tapped');
+        setTimeout(() => item.classList.remove('tapped'), 300);
+      });
+    });
+
+    const allWords = [
+      { word: 'dog', emoji: '🐶' },
+      { word: 'cat', emoji: '🐱' },
+      { word: 'sun', emoji: '☀️' },
+      { word: 'tree', emoji: '🌳' },
+      { word: 'flower', emoji: '🌻' },
+      { word: 'bird', emoji: '🐦' },
+      { word: 'house', emoji: '🏠' },
+      { word: 'car', emoji: '🚗' }
+    ];
+
+    // ========== 听音找图 ==========
+    let gameState = {
+      currentQuestion: 0, totalQuestions: 8, score: 0,
+      correctWord: null, options: [], locked: false, questions: []
+    };
+
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const questionNum = document.getElementById('questionNum');
+    const totalQuestionsSpan = document.getElementById('totalQuestions');
+    const optionsGrid = document.getElementById('optionsGrid');
+    const feedbackText = document.getElementById('feedbackText');
+    const playWordBtn = document.getElementById('playWordBtn');
+    const finalScore = document.getElementById('finalScore');
+    const starsRow = document.getElementById('starsRow');
+    const gameOverTitle = document.getElementById('gameOverTitle');
+    const gameOverSubtitle = document.getElementById('gameOverSubtitle');
+
+    function generateQuestions() {
+      const shuffled = [...allWords].sort(() => Math.random() - 0.5);
+      return shuffled.slice(0, gameState.totalQuestions);
+    }
+
+    function generateOptions(correctWord) {
+      const others = allWords.filter(w => w.word !== correctWord.word);
+      const shuffledOthers = others.sort(() => Math.random() - 0.5);
+      const distractors = shuffledOthers.slice(0, 3);
+      return [correctWord, ...distractors].sort(() => Math.random() - 0.5);
+    }
+
+    function renderQuestion() {
+      const q = gameState.questions[gameState.currentQuestion];
+      if (!q) { endGame('game'); return; }
+      gameState.correctWord = q;
+      gameState.options = generateOptions(q);
+      gameState.locked = false;
+      questionNum.textContent = gameState.currentQuestion + 1;
+      feedbackText.textContent = '';
+      feedbackText.className = 'feedback';
+      optionsGrid.innerHTML = '';
+      gameState.options.forEach((opt) => {
+        const div = document.createElement('div');
+        div.className = 'option-item';
+        div.dataset.word = opt.word;
+        div.innerHTML = `<div class="option-emoji">${opt.emoji}</div>`;
+        div.addEventListener('click', () => handleOptionClick(opt, div));
+        optionsGrid.appendChild(div);
+      });
+      setTimeout(() => {
+        stopSpeaking();
+        speakWord(q.word);
+      }, 350);
+    }
+
+    function handleOptionClick(opt, element) {
+      if (gameState.locked) return;
+      gameState.locked = true;
+      if (opt.word === gameState.correctWord.word) {
+        element.classList.add('correct');
+        gameState.score += 10;
+        scoreDisplay.textContent = gameState.score;
+        feedbackText.textContent = '✅ 答对啦！+10分';
+        feedbackText.className = 'feedback good';
+        showScorePop(element, scene);
+        showConfetti(scene);
+        stopSpeaking();
+        speakWord(gameState.correctWord.word);
+        document.querySelectorAll('.option-item').forEach(el => el.classList.add('disabled'));
+        setTimeout(() => {
+          gameState.currentQuestion++;
+          if (gameState.currentQuestion < gameState.totalQuestions) {
+            renderQuestion();
+          } else {
+            endGame('game');
+          }
+        }, 1200);
+      } else {
+        element.classList.add('wrong');
+        feedbackText.textContent = '❌ 再想想看～';
+        feedbackText.className = 'feedback bad';
+        stopSpeaking();
+        speakWord(gameState.correctWord.word);
+        element.style.opacity = '0.5';
+        element.style.pointerEvents = 'none';
+        gameState.locked = false;
+      }
+    }
+
+    function startNewGame() {
+      gameOver.classList.remove('active');
+      gameState = {
+        currentQuestion: 0, totalQuestions: 8, score: 0,
+        correctWord: null, options: [], locked: false,
+        questions: generateQuestions()
+      };
+      scoreDisplay.textContent = '0';
+      totalQuestionsSpan.textContent = gameState.totalQuestions;
+      questionNum.textContent = '1';
+      feedbackText.textContent = '';
+      renderQuestion();
+    }
+
+    playWordBtn.addEventListener('click', () => {
+      if (gameState.correctWord) {
+        stopSpeaking();
+        speakWord(gameState.correctWord.word);
+      }
+    });
+
+    // ========== 拼单词 ==========
+    let spellState = {
+      currentQuestion: 0, totalQuestions: 6, score: 0,
+      correctWord: null, currentInput: [], availableLetters: [],
+      locked: false, questions: []
+    };
+
+    const spellScoreDisplay = document.getElementById('spellScoreDisplay');
+    const spellQuestionNum = document.getElementById('spellQuestionNum');
+    const spellTotalQuestions = document.getElementById('spellTotalQuestions');
+    const spellHintImage = document.getElementById('spellHintImage');
+    const spellSlots = document.getElementById('spellSlots');
+    const letterPool = document.getElementById('letterPool');
+    const spellFeedback = document.getElementById('spellFeedback');
+    const spellListenBtn = document.getElementById('spellListenBtn');
+    const spellClearBtn = document.getElementById('spellClearBtn');
+
+    function generateSpellQuestions() {
+      const shuffled = [...allWords].sort(() => Math.random() - 0.5);
+      return shuffled.slice(0, spellState.totalQuestions);
+    }
+
+    function generateLetterPool(word) {
+      const letters = word.split('');
+      const otherLetters = allWords
+        .filter(w => w.word !== word)
+        .map(w => w.word.split(''))
+        .flat()
+        .filter(l => !letters.includes(l));
+      const uniqueOthers = [...new Set(otherLetters)];
+      const shuffledOthers = uniqueOthers.sort(() => Math.random() - 0.5);
+      const distractCount = word.length <= 3 ? 2 : 3;
+      const distractors = shuffledOthers.slice(0, distractCount);
+      const pool = [...letters, ...distractors].sort(() => Math.random() - 0.5);
+      return pool.map(letter => ({ letter, used: false }));
+    }
+
+    function renderSpellQuestion() {
+      const q = spellState.questions[spellState.currentQuestion];
+      if (!q) { endGame('spell'); return; }
+      spellState.correctWord = q;
+      spellState.currentInput = [];
+      spellState.locked = false;
+      spellState.availableLetters = generateLetterPool(q.word);
+      spellQuestionNum.textContent = spellState.currentQuestion + 1;
+      spellTotalQuestions.textContent = spellState.totalQuestions;
+      spellHintImage.textContent = q.emoji;
+      spellFeedback.textContent = '';
+      spellFeedback.className = 'feedback';
+      renderSlots();
+      renderLetterPool();
+      setTimeout(() => {
+        stopSpeaking();
+        speakWord(q.word);
+      }, 400);
+    }
+
+    function renderSlots() {
+      const word = spellState.correctWord.word;
+      spellSlots.innerHTML = '';
+      for (let i = 0; i < word.length; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'spell-slot';
+        const inputItem = spellState.currentInput[i];
+        if (inputItem) {
+          slot.textContent = inputItem.letter;
+          slot.classList.add('filled');
+        }
+        spellSlots.appendChild(slot);
+      }
+    }
+
+    function renderLetterPool() {
+      letterPool.innerHTML = '';
+      spellState.availableLetters.forEach((item, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'letter-btn';
+        btn.textContent = item.letter;
+        if (item.used) btn.classList.add('used');
+        btn.addEventListener('click', () => handleLetterClick(idx, btn));
+        letterPool.appendChild(btn);
+        item.el = btn;
+      });
+    }
+
+    function handleLetterClick(idx, btnEl) {
+      if (spellState.locked) return;
+      const item = spellState.availableLetters[idx];
+      if (item.used) return;
+      const word = spellState.correctWord.word;
+      const nextPos = spellState.currentInput.length;
+      if (nextPos >= word.length) return;
+      if (item.letter === word[nextPos]) {
+        item.used = true;
+        btnEl.classList.add('used');
+        spellState.currentInput.push({ letter: item.letter, poolIdx: idx });
+        renderSlots();
+        if (spellState.currentInput.length === word.length) {
+          spellState.locked = true;
+          const bonus = word.length * 5;
+          spellState.score += bonus;
+          spellScoreDisplay.textContent = spellState.score;
+          spellFeedback.textContent = `🎉 拼对啦！+${bonus}分`;
+          spellFeedback.className = 'feedback good';
+          showSpellSuccess(spellState.correctWord.emoji);
+          showConfetti(scene);
+          stopSpeaking();
+          speakWord(word);
+          setTimeout(() => {
+            spellState.currentQuestion++;
+            if (spellState.currentQuestion < spellState.totalQuestions) {
+              renderSpellQuestion();
+            } else {
+              endGame('spell');
+            }
+          }, 1600);
+        }
+      } else {
+        btnEl.classList.add('wiggle');
+        setTimeout(() => btnEl.classList.remove('wiggle'), 300);
+        spellFeedback.textContent = '❌ 字母不对哦～';
+        spellFeedback.className = 'feedback bad';
+        if (navigator.vibrate) navigator.vibrate(80);
+      }
+    }
+
+    function showSpellSuccess(emoji) {
+      const overlay = document.createElement('div');
+      overlay.className = 'spell-success-overlay';
+      overlay.innerHTML = `<div class="spell-success-emoji">${emoji}</div>`;
+      spellArea.appendChild(overlay);
+      setTimeout(() => overlay.remove(), 900);
+    }
+
+    spellListenBtn.addEventListener('click', () => {
+      if (spellState.correctWord) {
+        stopSpeaking();
+        speakWord(spellState.correctWord.word);
+      }
+    });
+
+    spellClearBtn.addEventListener('click', () => {
+      if (spellState.locked) return;
+      spellState.currentInput = [];
+      spellState.availableLetters.forEach(item => item.used = false);
+      renderSlots();
+      renderLetterPool();
+      spellFeedback.textContent = '';
+      spellFeedback.className = 'feedback';
+    });
+
+    function startNewSpellGame() {
+      gameOver.classList.remove('active');
+      spellState = {
+        currentQuestion: 0, totalQuestions: 6, score: 0,
+        correctWord: null, currentInput: [], availableLetters: [],
+        locked: false, questions: generateSpellQuestions()
+      };
+      spellScoreDisplay.textContent = '0';
+      spellQuestionNum.textContent = '1';
+      spellTotalQuestions.textContent = spellState.totalQuestions;
+      spellFeedback.textContent = '';
+      renderSpellQuestion();
+    }
+
+    // ========== 动画剧场 ==========
+    const actorDog = document.getElementById('actorDog');
+    const actorCat = document.getElementById('actorCat');
+    const actorBird = document.getElementById('actorBird');
+    const actorFlower = document.getElementById('actorFlower');
+    const subtitleBox = document.getElementById('subtitleBox');
+    const subtitleEn = document.getElementById('subtitleEn');
+    const subtitleZh = document.getElementById('subtitleZh');
+    const restartStoryBtn = document.getElementById('restartStoryBtn');
+    const replaySceneBtn = document.getElementById('replaySceneBtn');
+    const nextSceneBtn = document.getElementById('nextSceneBtn');
+    const theaterTip = document.getElementById('theaterTip');
+    const sceneProgress = document.getElementById('sceneProgress');
+
+    const storyScenes = [
+      { speaker: 'dog', en: 'Hello! I am a dog. Woof woof!', zh: '你好！我是一只小狗。汪汪！', action: 'hop' },
+      { speaker: 'cat', en: 'Hi! I am a cat. Meow meow!', zh: '嗨！我是一只小猫。喵喵！', action: 'sway' },
+      { speaker: 'bird', en: 'Hello! I am a bird. Tweet tweet!', zh: '你好！我是一只小鸟。啾啾！', action: 'hop' },
+      { speaker: 'dog', en: 'Look! The sun is bright!', zh: '看！太阳好亮呀！', action: 'sway' },
+      { speaker: 'cat', en: 'Wow! A big tree and a pretty flower!', zh: '哇！一棵大树和一朵漂亮的花！', action: 'hop' },
+      { speaker: 'bird', en: 'I can fly to the house!', zh: '我可以飞到房子那边！', action: 'hop' },
+      { speaker: 'all', en: 'Goodbye, friends! See you next time!', zh: '再见啦，朋友们！下次见！', action: 'sway' }
+    ];
+
+    let theaterState = {
+      currentScene: 0, playing: false, finished: false, hasPlayed: false,
+    };
+
+    const actorMap = {
+      dog: actorDog, cat: actorCat, bird: actorBird, flower: actorFlower, all: null,
+    };
+
+    const allActors = [actorDog, actorCat, actorBird, actorFlower];
+
+    function initTheater() {
+      buildProgressDots();
+      resetStage();
+      theaterState.currentScene = 0;
+      theaterState.playing = false;
+      theaterState.finished = false;
+      theaterState.hasPlayed = false;
+      updateNextBtn();
+      theaterTip.textContent = '👆 点一下按钮，看一幕动画，听完再点下一幕';
+    }
+
+    function buildProgressDots() {
+      sceneProgress.innerHTML = '';
+      storyScenes.forEach((_, idx) => {
+        const dot = document.createElement('div');
+        dot.className = 'progress-dot';
+        dot.dataset.idx = idx;
+        sceneProgress.appendChild(dot);
+      });
+    }
+
+    function resetStage() {
+      allActors.forEach(a => {
+        a.style.opacity = '0';
+        a.classList.remove('actor-enter', 'actor-hop', 'actor-sway', 'actor-speaking', 'actor-dimmed');
+      });
+      subtitleBox.classList.add('hidden');
+      updateProgressDots(-1);
+    }
+
+    function updateProgressDots(currentIdx) {
+      document.querySelectorAll('.progress-dot').forEach((dot, idx) => {
+        dot.classList.remove('active', 'done');
+        if (idx < currentIdx) dot.classList.add('done');
+        if (idx === currentIdx) dot.classList.add('active');
+      });
+    }
+
+    function showSubtitle(en, zh) {
+      subtitleEn.textContent = en;
+      subtitleZh.textContent = zh;
+      subtitleBox.classList.remove('hidden');
+    }
+
+    function hideSubtitle() {
+      subtitleBox.classList.add('hidden');
+    }
+
+    function setSpeakingFocus(speakerKey) {
+      allActors.forEach(a => {
+        a.classList.remove('actor-speaking', 'actor-dimmed');
+      });
+      if (speakerKey === 'all') {
+        allActors.forEach(a => a.classList.add('actor-speaking'));
+      } else {
+        const speakerActor = actorMap[speakerKey];
+        allActors.forEach(a => {
+          if (a === speakerActor) {
+            a.classList.add('actor-speaking');
+          } else {
+            if (a.style.opacity !== '0') {
+              a.classList.add('actor-dimmed');
+            }
+          }
+        });
+      }
+    }
+
+    function showSceneActors(sceneData) {
+      const actor = actorMap[sceneData.speaker];
+      if (actor) {
+        actor.style.opacity = '1';
+        actor.classList.add('actor-enter');
+        actor.classList.remove('actor-hop', 'actor-sway');
+        setTimeout(() => actor.classList.remove('actor-enter'), 700);
+        if (sceneData.action === 'hop') actor.classList.add('actor-hop');
+        else if (sceneData.action === 'sway') actor.classList.add('actor-sway');
+      } else if (sceneData.speaker === 'all') {
+        allActors.forEach(a => {
+          a.style.opacity = '1';
+          a.classList.add('actor-enter');
+          setTimeout(() => a.classList.remove('actor-enter'), 700);
+          if (sceneData.action === 'sway') a.classList.add('actor-sway');
+        });
+      }
+    }
+
+    function clearSceneActors(sceneData) {
+      const actor = actorMap[sceneData.speaker];
+      if (actor) actor.classList.remove('actor-hop', 'actor-sway');
+      if (sceneData.speaker === 'all') {
+        allActors.forEach(a => a.classList.remove('actor-hop', 'actor-sway'));
+      }
+      allActors.forEach(a => a.classList.remove('actor-speaking', 'actor-dimmed'));
+    }
+
+    function playCurrentScene() {
+      if (theaterState.currentScene >= storyScenes.length) {
+        theaterState.playing = false;
+        theaterState.finished = true;
+        updateNextBtn();
+        theaterTip.textContent = '🎉 故事讲完啦！点"从头开始"再听一遍吧';
+        hideSubtitle();
+        allActors.forEach(a => a.classList.remove('actor-speaking', 'actor-dimmed'));
+        return;
+      }
+
+      theaterState.playing = true;
+      updateNextBtn();
+      const sceneData = storyScenes[theaterState.currentScene];
+      updateProgressDots(theaterState.currentScene);
+
+      showSceneActors(sceneData);
+
+      setTimeout(() => {
+        setSpeakingFocus(sceneData.speaker);
+      }, 200);
+
+      showSubtitle(sceneData.en, sceneData.zh);
+      theaterTip.textContent = `🎬 正在播放第 ${theaterState.currentScene + 1} 幕 / 共 ${storyScenes.length} 幕`;
+
+      stopSpeaking();
+      speakWord(sceneData.en, 0.75, 1.05, () => {
+        theaterState.playing = false;
+        updateNextBtn();
+        if (theaterState.currentScene + 1 < storyScenes.length) {
+          theaterTip.textContent = '✅ 本幕读完啦，点"下一幕"继续～';
+        } else {
+          theaterTip.textContent = '🎉 故事讲完啦！点"从头开始"再听一遍吧';
+        }
+      });
+    }
+
+    function updateNextBtn() {
+      if (theaterState.playing) {
+        nextSceneBtn.textContent = '🔊 朗读中...';
+        nextSceneBtn.disabled = true;
+      } else if (theaterState.finished) {
+        nextSceneBtn.textContent = '🎉 已播完';
+        nextSceneBtn.disabled = true;
+      } else if (!theaterState.hasPlayed) {
+        nextSceneBtn.textContent = '▶️ 播放第一幕';
+        nextSceneBtn.disabled = false;
+      } else {
+        nextSceneBtn.textContent = '⏭️ 下一幕';
+        nextSceneBtn.disabled = false;
+      }
+    }
+
+    function stopStory() {
+      theaterState.playing = false;
+      stopSpeaking();
+      updateNextBtn();
+    }
+
+    restartStoryBtn.addEventListener('click', () => {
+      stopStory();
+      resetStage();
+      theaterState.currentScene = 0;
+      theaterState.finished = false;
+      theaterState.hasPlayed = false;
+      theaterTip.textContent = '👆 点一下按钮，看一幕动画，听完再点下一幕';
+      updateNextBtn();
+    });
+
+    replaySceneBtn.addEventListener('click', () => {
+      if (theaterState.finished) {
+        theaterState.currentScene = storyScenes.length - 1;
+        theaterState.finished = false;
+      }
+      stopStory();
+      const sceneData = storyScenes[theaterState.currentScene];
+      clearSceneActors(sceneData);
+      hideSubtitle();
+      setTimeout(() => playCurrentScene(), 150);
+    });
+
+    nextSceneBtn.addEventListener('click', () => {
+      if (theaterState.playing) return;
+      if (theaterState.finished) {
+        resetStage();
+        theaterState.currentScene = 0;
+        theaterState.finished = false;
+        theaterState.hasPlayed = false;
+        updateNextBtn();
+        return;
+      }
+      if (theaterState.hasPlayed) {
+        const prevSceneData = storyScenes[theaterState.currentScene];
+        clearSceneActors(prevSceneData);
+        theaterState.currentScene++;
+        if (theaterState.currentScene >= storyScenes.length) {
+          theaterState.finished = true;
+          theaterState.playing = false;
+          updateNextBtn();
+          theaterTip.textContent = '🎉 故事讲完啦！点"从头开始"再听一遍吧';
+          hideSubtitle();
+          allActors.forEach(a => a.classList.remove('actor-speaking', 'actor-dimmed'));
+          return;
+        }
+      }
+      theaterState.hasPlayed = true;
+      playCurrentScene();
+    });
+
+    buildProgressDots();
+
+    function showScorePop(element, container) {
+      const rect = element.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      const pop = document.createElement('div');
+      pop.className = 'score-pop';
+      pop.textContent = '+10';
+      pop.style.left = (rect.left - containerRect.left + rect.width / 2 - 20) + 'px';
+      pop.style.top = (rect.top - containerRect.top - 10) + 'px';
+      container.appendChild(pop);
+      setTimeout(() => pop.remove(), 800);
+    }
+
+    function showConfetti(container) {
+      const emojis = ['🌟', '✨', '🎉', '💫', '⭐', '🌈'];
+      for (let i = 0; i < 10; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        c.style.left = Math.random() * 80 + 10 + '%';
+        c.style.top = '10%';
+        c.style.fontSize = (1.5 + Math.random() * 1.5) + 'rem';
+        c.style.animationDelay = Math.random() * 0.3 + 's';
+        container.appendChild(c);
+        setTimeout(() => c.remove(), 1500);
+      }
+    }
+
+    function endGame(mode) {
+      if (mode === 'game') {
+        gameArea.style.display = 'none';
+      } else {
+        spellArea.style.display = 'none';
+      }
+      gameOver.classList.add('active');
+      const score = mode === 'game' ? gameState.score : spellState.score;
+      const total = mode === 'game' ? gameState.totalQuestions : spellState.totalQuestions;
+      finalScore.textContent = score + ' 分';
+      const maxScore = mode === 'game' ? total * 10 : total * 25;
+      const ratio = score / maxScore;
+      let stars = '';
+      if (ratio >= 0.9) stars = '⭐⭐⭐';
+      else if (ratio >= 0.6) stars = '⭐⭐';
+      else stars = '⭐';
+      starsRow.textContent = stars;
+      if (mode === 'game') {
+        gameOverTitle.textContent = '太棒啦！';
+        gameOverSubtitle.textContent = '你完成了所有找图题目';
+      } else {
+        gameOverTitle.textContent = '拼写小达人！';
+        gameOverSubtitle.textContent = '你完成了所有拼写题目';
+      }
+    }
+
+    document.getElementById('restartBtn').addEventListener('click', () => {
+      if (currentMode === 'game') {
+        startNewGame();
+      } else if (currentMode === 'spell') {
+        startNewSpellGame();
+      }
+    });
+
+    function initAudio() {
+      if (speechSynth && voices.length === 0) loadVoices();
+      document.removeEventListener('click', initAudio);
+      document.removeEventListener('touchstart', initAudio);
+    }
+    document.addEventListener('click', initAudio);
+    document.addEventListener('touchstart', initAudio);
+
+    window.addEventListener('load', () => {
+      if (speechSynth) {
+        loadVoices();
+        setTimeout(loadVoices, 200);
+        setTimeout(loadVoices, 800);
+      }
+    });
+
+    switchMode('reading');
+
+  })();
+</script>
+</body>
+</html>
